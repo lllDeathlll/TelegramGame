@@ -11,8 +11,8 @@ dp = Dispatcher(bot)
 
 # Adds random letter on text
 @dp.message_handler()
-async def random(message: types.message):
-    await message.reply(text=f"{await random.choice(set([string.ascii_letters]))}")
+async def random_number(message: types.message):
+    await message.reply(text=f"{random.sample([string.ascii_letters], random.randrange(1, 30))}")
 
 # Adds start command with welcome message
 @dp.message_handler(commands=["start"])
