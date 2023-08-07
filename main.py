@@ -1,20 +1,12 @@
 from aiogram import Bot, Dispatcher, executor, types
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
+# Import keyboards from keyboards.py
+from keyboards import start_kb, help_kb
 # Import token from cfg.py
 from cfg import TOKEN_API
 
 
 bot = Bot(TOKEN_API)
 dp = Dispatcher(bot)
-
-# Adds keyboard on start command with auto resizing
-start_kb = ReplyKeyboardMarkup(resize_keyboard=True)
-start_kb.add(KeyboardButton("/help"))
-# Adds keyboard on help command with auto resizing that minimizes on press
-help_kb = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
-help_b1 = KeyboardButton("/help")
-help_b2 = KeyboardButton("/description")
-help_kb.add(help_b1).add(help_b2)
     
 # Adds function that completes on bot startup
 async def on_startup(_):
