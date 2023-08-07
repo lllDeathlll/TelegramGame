@@ -1,6 +1,6 @@
 from aiogram import Bot, Dispatcher, executor, types
 # Import keyboards from keyboards.py
-from keyboards import start_kb, help_kb
+from keyboards import start_kb, help_kb, game_start_kb
 # Import token from cfg.py
 from cfg import TOKEN_API
 
@@ -51,7 +51,7 @@ async def sticker_id(message: types.Message):
     
 # Adds command to start the game
 @dp.message_handler(commands=["start_game"])
-async def desc_command(message: types.Message):
+async def game_start_command(message: types.Message):
     await message.reply(text=
 """
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris nec lobortis magna. Aenean augue quam, tincidunt non sodales nec, sollicitudin eu enim. Fusce gravida varius lorem, ac rutrum eros laoreet ut. Nam maximus lacus sit amet augue molestie varius. Proin varius condimentum nisl, eu facilisis ipsum feugiat in. Vivamus blandit arcu sed sem cursus tempus. Nulla tempus quam nec nisl mollis suscipit. Fusce tempus massa luctus massa suscipit, malesuada scelerisque urna convallis. Fusce aliquet pretium diam congue luctus. Proin ut vulputate orci, vitae bibendum eros. Vestibulum pellentesque massa ex, in accumsan magna dapibus vitae. Nullam quis iaculis elit, non pellentesque magna. Donec non consectetur risus. Phasellus eget elit ante. Nam vel ultricies lorem. Mauris faucibus arcu erat, a malesuada ipsum viverra sed.
@@ -63,7 +63,16 @@ Maecenas et tellus accumsan, maximus lacus nec, consequat arcu. Duis porta pelle
 Nulla aliquam sapien felis, et maximus ligula venenatis eget. Aliquam ut pretium leo, non vulputate elit. Etiam sollicitudin, metus eget consectetur cursus, justo ligula faucibus sem, ut aliquam magna odio at erat. In fringilla erat quis blandit sagittis. Aliquam lobortis ultrices diam. Quisque lobortis auctor lorem fermentum pellentesque. Maecenas eget vulputate risus. Aenean placerat erat non feugiat vulputate. Proin a elit vel odio lacinia bibendum at in turpis. Etiam semper ut leo id viverra. In id ornare ligula.
 
 Etiam euismod mattis accumsan. Nullam ut ornare ex, venenatis efficitur ante. Maecenas faucibus dapibus lacus non facilisis. Fusce at suscipit dolor. Mauris viverra nulla magna, id porttitor leo porttitor at. Duis luctus dictum eleifend. Duis lacinia a turpis eget fermentum.
-""")
+""",
+reply_markup=game_start_kb)
+    
+@dp.callback_query_handler()
+async def game_start_callback(callback: types.CallbackQuery):
+    if callback.data == "one":
+        return await callback.answer(text="You chose one")
+    if callback.data == "two":
+        return await callback.answer(text="You chose two") 
     
 if __name__ == '__main__':
-    executor.start_polling(dp, on_startup=on_startup)
+    executor.start_polling(dp,
+                           on_startup=on_startup)
