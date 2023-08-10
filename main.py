@@ -1,9 +1,11 @@
 from aiogram import Bot, Dispatcher, executor, types
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 # Import keyboards from keyboards.py
 from keyboards import start_kb, help_kb, game_start_kb
 # Import token from cfg.py
 from cfg import TOKEN_API
 
+STAGE = "bunker_history"
 
 bot = Bot(TOKEN_API)
 dp = Dispatcher(bot)
@@ -52,26 +54,54 @@ async def sticker_id(message: types.Message):
 # Adds command to start the game
 @dp.message_handler(commands=["start_game"])
 async def game_start_command(message: types.Message):
-    await message.reply(text=
-"""
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris nec lobortis magna. Aenean augue quam, tincidunt non sodales nec, sollicitudin eu enim. Fusce gravida varius lorem, ac rutrum eros laoreet ut. Nam maximus lacus sit amet augue molestie varius. Proin varius condimentum nisl, eu facilisis ipsum feugiat in. Vivamus blandit arcu sed sem cursus tempus. Nulla tempus quam nec nisl mollis suscipit. Fusce tempus massa luctus massa suscipit, malesuada scelerisque urna convallis. Fusce aliquet pretium diam congue luctus. Proin ut vulputate orci, vitae bibendum eros. Vestibulum pellentesque massa ex, in accumsan magna dapibus vitae. Nullam quis iaculis elit, non pellentesque magna. Donec non consectetur risus. Phasellus eget elit ante. Nam vel ultricies lorem. Mauris faucibus arcu erat, a malesuada ipsum viverra sed.
-
-Sed elementum mauris sem, id congue augue feugiat vel. Curabitur volutpat ante ante. Quisque finibus ipsum sed quam porttitor iaculis. Nullam venenatis ultrices consequat. Proin non odio euismod, luctus purus vitae, egestas sem. Fusce euismod ac lacus in condimentum. Donec scelerisque gravida pellentesque. Nullam a ipsum vitae nibh mollis interdum nec non libero. Phasellus erat eros, hendrerit rhoncus vulputate in, lobortis eget eros. Quisque mauris est, rutrum rutrum felis non, malesuada pulvinar libero. Proin sed tincidunt leo. Proin interdum elit tristique, porta urna a, posuere lorem. Cras nisl diam, euismod vel dignissim quis, luctus a diam. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce dapibus sem at fermentum interdum. Aenean luctus sed mauris ac sagittis.
-
-Maecenas et tellus accumsan, maximus lacus nec, consequat arcu. Duis porta pellentesque mollis. Quisque euismod euismod neque, at faucibus nisl lacinia non. Aenean in velit lorem. In suscipit leo sapien, non congue ex bibendum id. Curabitur sapien nibh, commodo a magna ut, vestibulum feugiat augue. Curabitur vitae mauris imperdiet, aliquet risus sed, aliquet augue. Mauris sit amet arcu a elit lobortis pretium eget ut enim. Quisque maximus dui sapien, nec rhoncus elit convallis dignissim.
-
-Nulla aliquam sapien felis, et maximus ligula venenatis eget. Aliquam ut pretium leo, non vulputate elit. Etiam sollicitudin, metus eget consectetur cursus, justo ligula faucibus sem, ut aliquam magna odio at erat. In fringilla erat quis blandit sagittis. Aliquam lobortis ultrices diam. Quisque lobortis auctor lorem fermentum pellentesque. Maecenas eget vulputate risus. Aenean placerat erat non feugiat vulputate. Proin a elit vel odio lacinia bibendum at in turpis. Etiam semper ut leo id viverra. In id ornare ligula.
-
-Etiam euismod mattis accumsan. Nullam ut ornare ex, venenatis efficitur ante. Maecenas faucibus dapibus lacus non facilisis. Fusce at suscipit dolor. Mauris viverra nulla magna, id porttitor leo porttitor at. Duis luctus dictum eleifend. Duis lacinia a turpis eget fermentum.
-""",
-reply_markup=game_start_kb)
+    reply_markup = InlineKeyboardMarkup(row_width=3, one_time_keyboard=True)
+    button_next = InlineKeyboardButton(text="История бункера", callback_data="bunker_history")
+    reply_markup.add(button_next)
+    text = open("lore/world_history.txt", "r")
+    await message.reply(text=text.read(),
+    reply_markup=reply_markup)
     
-@dp.callback_query_handler()
+async def world_history(callback_query: CallbackQuery):
+    await callback_query.answer("История мира")
+    reply_markup = InlineKeyboardMarkup(row_width=3, one_time_keyboard=True)
+    button_next = InlineKeyboardButton(text="История бункера", callback_data="bunker_history")
+    reply_markup.add(button_next)
+    text = open("lore/world_history.txt", "r")
+    await callback_query.message.edit_text(text=text.read(), reply_markup=reply_markup)   
+    
+async def bunker_history(callback_query: CallbackQuery):
+    await callback_query.answer("История бункера")
+    reply_markup = InlineKeyboardMarkup(row_width=3, one_time_keyboard=True)
+    button_previous = InlineKeyboardButton("История мира", callback_data='world_history')
+    button_next = InlineKeyboardButton("Кто мы?", callback_data='who_are_we')
+    reply_markup.add(button_previous).insert(button_next)
+    text = open("lore/bunker_history.txt", "r")
+    await callback_query.message.edit_text(text=text.read(), reply_markup=reply_markup)   
+
+async def who_are_we(callback_query: CallbackQuery):
+    await callback_query.answer("Кто мы?")
+    reply_markup = InlineKeyboardMarkup(row_width=3, one_time_keyboard=True)
+    button_previous = InlineKeyboardButton("История бункера", callback_data='bunker_history')
+    button_next = InlineKeyboardButton("Далее", callback_data='who_are_we')
+    reply_markup.add(button_previous).insert(button_next)
+    text = open("lore/who_are_we.txt", "r")
+    await callback_query.message.edit_text(text=text.read(), reply_markup=reply_markup)  
+
+dp.register_callback_query_handler(world_history, lambda c: c.data == 'world_history')
+dp.register_callback_query_handler(bunker_history, lambda c: c.data == 'bunker_history')
+dp.register_callback_query_handler(who_are_we, lambda c: c.data == 'who_are_we')
+dp.register_message_handler(game_start_command)
+dp.register_message_handler(bunker_history)
+dp.register_message_handler(who_are_we)
+    
+'''@dp.callback_query_handler()
 async def game_start_callback(callback: types.CallbackQuery):
     if callback.data == "one":
+        await callback.message.edit_text("ONE")
         return await callback.answer(text="You chose one")
     if callback.data == "two":
-        return await callback.answer(text="You chose two") 
+        await callback.message.edit_text("TWO")
+        return await callback.answer(text="You chose two")'''
     
 if __name__ == '__main__':
     executor.start_polling(dp,
