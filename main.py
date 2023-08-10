@@ -61,6 +61,8 @@ async def game_start_command(message: types.Message):
     await message.reply(text=text.read(),
     reply_markup=reply_markup)
     
+dp.register_message_handler(game_start_command)
+    
 async def world_history(callback_query: CallbackQuery):
     await callback_query.answer("История мира")
     reply_markup = InlineKeyboardMarkup(row_width=3, one_time_keyboard=True)
@@ -69,6 +71,9 @@ async def world_history(callback_query: CallbackQuery):
     text = open("lore/world_history.txt", "r")
     await callback_query.message.edit_text(text=text.read(), reply_markup=reply_markup)   
     
+dp.register_callback_query_handler(world_history, lambda c: c.data == 'world_history')
+dp.register_message_handler(world_history)
+    
 async def bunker_history(callback_query: CallbackQuery):
     await callback_query.answer("История бункера")
     reply_markup = InlineKeyboardMarkup(row_width=3, one_time_keyboard=True)
@@ -76,22 +81,21 @@ async def bunker_history(callback_query: CallbackQuery):
     button_next = InlineKeyboardButton("Кто мы?", callback_data='who_are_we')
     reply_markup.add(button_previous).insert(button_next)
     text = open("lore/bunker_history.txt", "r")
-    await callback_query.message.edit_text(text=text.read(), reply_markup=reply_markup)   
+    await callback_query.message.edit_text(text=text.read(), reply_markup=reply_markup)
+
+dp.register_callback_query_handler(bunker_history, lambda c: c.data == 'bunker_history')
+dp.register_message_handler(bunker_history)
 
 async def who_are_we(callback_query: CallbackQuery):
     await callback_query.answer("Кто мы?")
     reply_markup = InlineKeyboardMarkup(row_width=3, one_time_keyboard=True)
     button_previous = InlineKeyboardButton("История бункера", callback_data='bunker_history')
-    button_next = InlineKeyboardButton("Далее", callback_data='who_are_we')
+    button_next = InlineKeyboardButton("Далее", callback_data='the_beginning')
     reply_markup.add(button_previous).insert(button_next)
     text = open("lore/who_are_we.txt", "r")
     await callback_query.message.edit_text(text=text.read(), reply_markup=reply_markup)  
-
-dp.register_callback_query_handler(world_history, lambda c: c.data == 'world_history')
-dp.register_callback_query_handler(bunker_history, lambda c: c.data == 'bunker_history')
+    
 dp.register_callback_query_handler(who_are_we, lambda c: c.data == 'who_are_we')
-dp.register_message_handler(game_start_command)
-dp.register_message_handler(bunker_history)
 dp.register_message_handler(who_are_we)
     
 '''@dp.callback_query_handler()
