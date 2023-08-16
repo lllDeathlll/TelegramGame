@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  bot:
+    build: .
+
+  db:
+    image: mysql:8.0.26
+    environment:
+      MYSQL_ROOT_PASSWORD: 123123R
+      MYSQL_DATABASE: db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "3307:3307"
+
+volumes:
+  db-data:
